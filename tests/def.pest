@@ -1,0 +1,31 @@
+// https://pest.rs/#editor
+
+COMMENT_ESCAPE = { (";" | "#") }
+CONTENT = { (!(NEWLINE) ~ ANY)* }
+COMMENT = { (COMMENT_ESCAPE) ~ (CONTENT) ~ (NEWLINE) }
+WHITESPACE = _{ (" ")+ }
+amount_separator = { "  " }
+
+//empty_line = { (NEWLINE) }
+
+// iso date
+year = { '0'..'2' ~ '0'..'9' ~ '0'..'9' ~ '0'..'9' }
+month = { '0'..'1' ~ '0'..'9' }
+day = { '0'..'3' ~ '0'..'9' }
+date_sep = _{ "-" }
+date = { (year) ~ "-" ~ (month) ~ "-" ~ (day) }
+payee = { (ANY)* ~ "\n" }
+amount = { ("-")* ~ (ASCII_DIGIT)+ }
+
+currency = { (ASCII_ALPHANUMERIC)* }
+
+account_part = { (ASCII_ALPHANUMERIC)+ | " " }
+account = { (account_part) ~ (":" ~ account_part)* }
+
+top_line = { (date) ~ (payee) }
+
+posting = { WHITESPACE ~ (account) ~ ("  ")* ~ ((amount) ~ (currency))* ~ NEWLINE }
+
+tx = { top_line ~ (posting)+ }
+
+file = { SOI ~ (tx)* ~ EOI }
