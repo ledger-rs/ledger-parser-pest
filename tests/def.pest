@@ -1,31 +1,36 @@
 // https://pest.rs/#editor
 
-COMMENT_ESCAPE = { (";" | "#") }
-CONTENT = { (!(NEWLINE) ~ ANY)* }
-COMMENT = { (COMMENT_ESCAPE) ~ (CONTENT) ~ (NEWLINE) }
-WHITESPACE = _{ (" ")+ }
-amount_separator = { "  " }
+comment_escape = { (";" | "#" | "%" | "|" | "*") }
+content = { (!NEWLINE ~ ANY)* }
+//COMMENT = { comment_escape ~ content }
+comment = { comment_escape ~ content }
+comment_line = { comment ~ NEWLINE }
+tx_comment = { " "+ ~ comment ~ NEWLINE }
+// todo: multiline_comment = { ("comment" ~ NEWLINE) ~ content ~ NEWLINE ~ "end comment" ~ NEWLINE }
+//WHITESPACE = _{ " "+ }
+// amount_separator = { "  " }     // 2 spaces
 
-//empty_line = { (NEWLINE) }
+empty_line = { " "* ~ (NEWLINE | EOI) }
 
 // iso date
 year = { '0'..'2' ~ '0'..'9' ~ '0'..'9' ~ '0'..'9' }
 month = { '0'..'1' ~ '0'..'9' }
 day = { '0'..'3' ~ '0'..'9' }
-date_sep = _{ "-" }
-date = { (year) ~ "-" ~ (month) ~ "-" ~ (day) }
-payee = { (ANY)* ~ "\n" }
-amount = { ("-")* ~ (ASCII_DIGIT)+ }
+date = { year ~ "-" ~ month ~ "-" ~ day }
+payee = { content }
+amount = { "-"* ~ ASCII_DIGIT+ }
 
-currency = { (ASCII_ALPHANUMERIC)* }
+currency = { ASCII_ALPHANUMERIC+ }
 
-account_part = { (ASCII_ALPHANUMERIC)+ | " " }
-account = { (account_part) ~ (":" ~ account_part)* }
+//account_part = { ASCII_ALPHANUMERIC+ | " " }
+account = { (ASCII_ALPHANUMERIC+ | " ") ~ (":" ~ (ASCII_ALPHANUMERIC+ | " "))* }
 
-top_line = { (date) ~ (payee) }
+top_line = { date ~ " "+ ~ payee ~ NEWLINE }
 
-posting = { WHITESPACE ~ (account) ~ ("  ")* ~ ((amount) ~ (currency))* ~ NEWLINE }
+// Posting, 4.1 The Most Basic Entry
+posting_amount = { "  "+ ~ amount ~ " " ~ currency }
+posting = { " "+ ~ account ~ posting_amount? ~ NEWLINE }
 
-tx = { top_line ~ (posting)+ }
+tx = { top_line ~ tx_comment* ~ posting+ }
 
-file = { SOI ~ (tx)* ~ EOI }
+file = { SOI ~ (tx | comment_line | empty_line)* ~ EOI }
