@@ -5,7 +5,7 @@ content = { (!NEWLINE ~ ANY)* }
 //COMMENT = { comment_escape ~ content }
 comment = { comment_escape ~ content }
 comment_line = { comment ~ NEWLINE }
-tx_comment = { " "+ ~ comment ~ NEWLINE }
+tx_comment = { " "+ ~ comment_line }
 // todo: multiline_comment = { ("comment" ~ NEWLINE) ~ content ~ NEWLINE ~ "end comment" ~ NEWLINE }
 //WHITESPACE = _{ " "+ }
 // amount_separator = { "  " }     // 2 spaces
@@ -23,7 +23,7 @@ amount = { "-"* ~ ASCII_DIGIT+ }
 currency = { ASCII_ALPHANUMERIC+ }
 
 //account_part = { ASCII_ALPHANUMERIC+ | " " }
-account = { (ASCII_ALPHANUMERIC+ | " ") ~ (":" ~ (ASCII_ALPHANUMERIC+ | " "))* }
+account = { ASCII_ALPHANUMERIC ~ (ASCII_ALPHANUMERIC+ | " ") ~ (":" ~ (ASCII_ALPHANUMERIC+ | " "))* }
 
 top_line = { date ~ " "+ ~ payee ~ NEWLINE }
 

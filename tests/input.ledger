@@ -4,3 +4,7 @@
     ; this is a comment
     Exp:Dentist
     Assets:Cash  -70 BAM
+
+2023-01-07 Supermarket
+    Expenses:Food
+    Assets:Bank:Checking  -20 BAM
